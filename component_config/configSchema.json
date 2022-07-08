@@ -2,16 +2,27 @@
   "type": "object",
   "title": "extractor configuration",
   "required": [
-    "print_hello"
+    "#client_id",
+    "#username",
+    "#password",
+    "incremental"
   ],
   "properties": {
-    "print_hello": {
-      "type": "boolean",
-      "title": "Print Hello"
+    "#client_id": {
+      "type": "string",
+      "title": "Client ID"
     },
-    "debug": {
+    "#username": {
+      "type": "string",
+      "title": "Username"
+    },
+    "#password": {
+      "type": "string",
+      "title": "Password"
+    },
+    "incremental": {
       "type": "boolean",
-      "title": "Debug"
+      "title": "Incremental"
     }
   }
 }
