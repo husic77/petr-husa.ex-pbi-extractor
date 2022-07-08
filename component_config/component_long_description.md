@@ -1,0 +1,1 @@
+Extractor from PBI (datasets, users, dashboards, refreshes, workspaces)
