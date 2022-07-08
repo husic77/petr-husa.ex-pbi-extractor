@@ -10,10 +10,11 @@ from keboola.component.exceptions import UserException
 KEY_CLIENT_ID = '#client_id'
 KEY_PASSWORD = '#password'
 KEY_USERNAME = '#username'
+KEY_INCREMENTAL = 'incremental'
 
 # list of mandatory parameters => if some is missing,
 # component will fail with readable message on initialization.
-REQUIRED_PARAMETERS = [KEY_CLIENT_ID, KEY_PASSWORD, KEY_USERNAME]
+REQUIRED_PARAMETERS = [KEY_CLIENT_ID, KEY_PASSWORD, KEY_USERNAME, KEY_INCREMENTAL]
 REQUIRED_IMAGE_PARS = []
 
 
@@ -32,6 +33,11 @@ class Component(ComponentBase):
         super().__init__()
         self.access_token = None
         self.get_api_token()
+        self.incremental = self.get_incremental()
+
+    def get_incremental(self):
+        params = self.configuration.parameters
+        return params.get(KEY_INCREMENTAL)
 
     def get_api_token(self):
         params = self.configuration.parameters
@@ -59,7 +65,8 @@ class Component(ComponentBase):
         response = requests.get(url, headers=headers).json()
 
         # Create output table (Table-definition - just metadata)
-        table = self.create_out_table_definition('pbi_groups.csv', incremental=True, primary_key=['name', 'id'])
+        table = self.create_out_table_definition('pbi_groups.csv', incremental=self.incremental,
+                                                 primary_key=['name', 'id'])
 
         # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
@@ -75,7 +82,7 @@ class Component(ComponentBase):
         # Create output table (Table-definition - just metadata)
 
         keys = ["email", "group_user_access_right", "display_name", "identifier", "principal_type", "groups_id_parent"]
-        table = self.create_out_table_definition('pbi_users.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_users.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['email', 'group_user_access_right', 'groups_id_parent'])
 
         # get file path of the table (data/out/tables/Features.csv)
@@ -127,7 +134,7 @@ class Component(ComponentBase):
                 "create_report_embed_url",
                 "qna_embed_url",
                 "group_id_parent"]
-        table = self.create_out_table_definition('pbi_datasets.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_datasets.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['name', 'id'])
 
         self.write_manifest(table)
@@ -185,7 +192,7 @@ class Component(ComponentBase):
             "embed_url",
             "group_id_parent"
         ]
-        table = self.create_out_table_definition('pbi_dashboards.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_dashboards.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['id'])
 
         self.write_manifest(table)
@@ -243,7 +250,7 @@ class Component(ComponentBase):
             "dataset_id",
             "group_id_parent"
         ]
-        table = self.create_out_table_definition('pbi_reports.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_reports.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['id'])
 
         self.write_manifest(table)
@@ -301,7 +308,7 @@ class Component(ComponentBase):
             "public_key_modulus",
             "gateway_annotation"
         ]
-        table = self.create_out_table_definition('pbi_gateways.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_gateways.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['id'])
 
         self.write_manifest(table)
@@ -353,7 +360,8 @@ class Component(ComponentBase):
             "credential_details_use_end_user_oauth2_credentials",
             "datasource_name"
         ]
-        table = self.create_out_table_definition('pbi_datasources_gateway.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_datasources_gateway.csv', incremental=self.incremental,
+                                                 columns=keys,
                                                  primary_key=['id'])
 
         self.write_manifest(table)
@@ -412,7 +420,8 @@ class Component(ComponentBase):
             "request_id",
             "refresh_type"
         ]
-        table = self.create_out_table_definition('pbi_datasets_refreshes.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_datasets_refreshes.csv', incremental=self.incremental,
+                                                 columns=keys,
                                                  primary_key=['id', 'start_time', 'end_time', 'dataset_id_parent',
                                                               'request_id', 'refresh_type'])
 
@@ -501,7 +510,8 @@ class Component(ComponentBase):
             "connection_string",
             "dataset_id_parent"
         ]
-        table = self.create_out_table_definition('pbi_datasets_datasources.csv', incremental=True, columns=keys,
+        table = self.create_out_table_definition('pbi_datasets_datasources.csv', incremental=self.incremental,
+                                                 columns=keys,
                                                  primary_key=['datasource_id', 'gateway_id', 'name',
                                                               'dataset_id_parent'])
 
@@ -566,6 +576,8 @@ class Component(ComponentBase):
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         self.validate_image_parameters(REQUIRED_IMAGE_PARS)
+
+        logging.info(f"Incremental = {self.incremental}")
 
         self.get_pbi_groups()
         self.get_pbi_users()
