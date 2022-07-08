@@ -74,7 +74,7 @@ class Component(ComponentBase):
 
         columns_to_write = ["id", "name"]
         to_write = pandas.DataFrame.from_dict(response["value"])
-        to_write.to_csv(table.full_path, index=False, columns=columns_to_write)
+        to_write.to_csv(table.full_path, index=False, columns=columns_to_write, header=True)
 
         self.write_manifest(table)
 
