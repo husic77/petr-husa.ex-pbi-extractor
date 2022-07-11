@@ -57,6 +57,20 @@ class Component(ComponentBase):
         self.access_token = response['access_token']
 
     def get_pbi_groups(self):
+        key = ["id", "name"]
+
+        # Create output table (Table-definition - just metadata)
+        table = self.create_out_table_definition('pbi_groups.csv', incremental=self.incremental,
+                                                 columns=key, primary_key=['name', 'id'])
+
+        # get file path of the table (data/out/tables/Features.csv)
+        out_table_path = table.full_path
+        logging.info(out_table_path)
+
+        with open(out_table_path, "w"):
+            pd = pandas.DataFrame(columns=key)
+            pd.to_csv(out_table_path, columns=key, index=False)
+
         url = "https://api.powerbi.com/v1.0/myorg/groups"
         headers = {
             "Authorization": f"Bearer {self.access_token}"
@@ -64,17 +78,15 @@ class Component(ComponentBase):
 
         response = requests.get(url, headers=headers).json()
 
-        # Create output table (Table-definition - just metadata)
-        table = self.create_out_table_definition('pbi_groups.csv', incremental=self.incremental,
-                                                 primary_key=['name', 'id'])
+        pd = pandas.DataFrame.from_dict(response['value'])
+        new_items = {
+            "id": pd.get('id'),
+            "name": pd.get('name'),
+        }
 
-        # get file path of the table (data/out/tables/Features.csv)
-        out_table_path = table.full_path
-        logging.info(out_table_path)
-
-        columns_to_write = ["id", "name"]
-        to_write = pandas.DataFrame.from_dict(response["value"])
-        to_write.to_csv(table.full_path, index=False, columns=columns_to_write, header=True)
+        to_write = pandas.DataFrame.from_dict(new_items)
+        # print(to_write)
+        to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=key)
 
         self.write_manifest(table)
 
@@ -442,7 +454,7 @@ class Component(ComponentBase):
             group_dataset_all = pd.to_dict(orient='records')
 
         for key in range(len(group_dataset_all)):
-            time.sleep(1)
+            time.sleep(0.5)
             group_id = group_dataset_all[key]['group_id_parent']
             dataset_id = group_dataset_all[key]['id']
 
