@@ -669,15 +669,15 @@ class Component(ComponentBase):
 
         logging.info(f"Incremental = {self.incremental}")
 
-        # self.get_pbi_groups()
-        # self.get_pbi_users()
-        # self.get_pbi_datasets()
-        # self.get_pbi_dashboards()
-        # self.get_pbi_reports()
-        # self.get_pbi_gateways()
-        # self.get_pbi_datasources_gateway()
-        # self.get_pbi_datasets_refreshes()
-        # self.get_pbi_datasets_datasources()
+        self.get_pbi_groups()
+        self.get_pbi_users()
+        self.get_pbi_datasets()
+        self.get_pbi_dashboards()
+        self.get_pbi_reports()
+        self.get_pbi_gateways()
+        self.get_pbi_datasources_gateway()
+        self.get_pbi_datasets_refreshes()
+        self.get_pbi_datasets_datasources()
         self.get_pbi_datasets_refresh_schedule()
 
 
