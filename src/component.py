@@ -581,6 +581,109 @@ class Component(ComponentBase):
                         # print(to_write)
                         to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
+    def get_pbi_datasets_refresh_schedule(self):
+        # Create output table (Table-definition - just metadata)
+
+        keys = [
+            "data",
+            "parent_id"
+        ]
+        table_times = self.create_out_table_definition('pbi_datasets_refresh_schedule_times.csv',
+                                                       incremental=self.incremental,
+                                                       columns=keys,
+                                                       primary_key=[])
+
+        table_days = self.create_out_table_definition('pbi_datasets_refresh_schedule_days.csv',
+                                                      incremental=self.incremental,
+                                                      columns=keys,
+                                                      primary_key=[])
+
+        table_enable = self.create_out_table_definition('pbi_datasets_refresh_schedule_enable.csv',
+                                                        incremental=self.incremental,
+                                                        columns=keys,
+                                                        primary_key=[])
+
+        self.write_manifest(table_times)
+        self.write_manifest(table_days)
+        self.write_manifest(table_enable)
+
+        # get file path of the table (data/out/tables/Features.csv)
+        out_table_times_path = table_times.full_path
+        out_table_days_path = table_days.full_path
+        out_table_enable_path = table_enable.full_path
+        logging.info(out_table_times_path)
+        logging.info(out_table_days_path)
+        logging.info(out_table_enable_path)
+
+        with open(out_table_times_path, "w"):
+            pd_times = pandas.DataFrame(columns=keys)
+            pd_times.to_csv(out_table_times_path, columns=keys, index=False)
+
+        with open(out_table_days_path, "w"):
+            pd_days = pandas.DataFrame(columns=keys)
+            pd_days.to_csv(out_table_days_path, columns=keys, index=False)
+
+        with open(out_table_enable_path, "w"):
+            pd_enable = pandas.DataFrame(columns=keys)
+            pd_enable.to_csv(out_table_enable_path, columns=keys, index=False)
+
+        with open("../data/out/tables/pbi_datasets.csv") as f:
+            file_data = pandas.read_csv(f, usecols=['id', 'group_id_parent', 'is_refreshable'])
+            pd_times = pandas.DataFrame(file_data)
+            group_dataset_all = pd_times.to_dict(orient='records')
+
+        for key in range(len(group_dataset_all)):
+            group_id = group_dataset_all[key]['group_id_parent']
+            dataset_id = group_dataset_all[key]['id']
+
+            if group_dataset_all[key]['is_refreshable']:
+                url = f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/refreshSchedule"
+                headers = {
+                    "Authorization": f"Bearer {self.access_token}"
+                }
+
+                response = requests.get(url, headers=headers).json()
+                try:
+                    if len(response['times']) > 0:
+                        pd_times = pandas.Series(response['times'])
+                    if len(response['days']) > 0:
+                        pd_days = pandas.Series(response['days'])
+
+                    refresh_enabled = response.get('enabled')
+
+                except AttributeError:
+                    pass
+                else:
+
+                    if not pd_times.empty:
+                        for _ in range(len(pd_times)):
+                            new_items = {
+                                "data": pd_times[_],
+                                "parent_id": dataset_id
+                            }
+                            to_write = pandas.DataFrame(new_items, index=[0])
+                            # print(to_write)
+                            to_write.to_csv(table_times.full_path, mode="a", header=False, index=False, columns=keys)
+
+                    if not pd_days.empty:
+                        for _ in range(len(pd_days)):
+                            new_items = {
+                                "data": pd_days[_],
+                                "parent_id": dataset_id
+                            }
+                            to_write = pandas.DataFrame(new_items, index=[0])
+                            # print(to_write)
+                            to_write.to_csv(table_days.full_path, mode="a", header=False, index=False, columns=keys)
+
+                    if refresh_enabled:
+                        new_items = {
+                            "data": refresh_enabled,
+                            "parent_id": dataset_id
+                        }
+                        to_write = pandas.DataFrame(new_items, index=[0])
+                        # print(to_write)
+                        to_write.to_csv(table_enable.full_path, mode="a", header=False, index=False, columns=keys)
+
     def run(self):
         """
         Main execution code
@@ -600,6 +703,7 @@ class Component(ComponentBase):
         self.get_pbi_datasources_gateway()
         self.get_pbi_datasets_refreshes()
         self.get_pbi_datasets_datasources()
+        self.get_pbi_datasets_refresh_schedule()
 
 
 """
