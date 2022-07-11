@@ -59,11 +59,9 @@ class Component(ComponentBase):
     def get_pbi_groups(self):
         key = ["id", "name"]
 
-        # Create output table (Table-definition - just metadata)
         table = self.create_out_table_definition('pbi_groups.csv', incremental=self.incremental,
                                                  columns=key, primary_key=['name', 'id'])
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -91,13 +89,10 @@ class Component(ComponentBase):
         self.write_manifest(table)
 
     def get_pbi_users(self):
-        # Create output table (Table-definition - just metadata)
-
         keys = ["email", "group_user_access_right", "display_name", "identifier", "principal_type", "groups_id_parent"]
         table = self.create_out_table_definition('pbi_users.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['email', 'group_user_access_right', 'groups_id_parent'])
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -151,7 +146,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -195,7 +189,6 @@ class Component(ComponentBase):
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
     def get_pbi_dashboards(self):
-        # Create output table (Table-definition - just metadata)
         keys = [
             "id",
             "display_name",
@@ -209,7 +202,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -250,7 +242,6 @@ class Component(ComponentBase):
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
     def get_pbi_reports(self):
-        # Create output table (Table-definition - just metadata)
         keys = [
             "id",
             "report_type",
@@ -267,7 +258,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -325,7 +315,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -362,7 +351,6 @@ class Component(ComponentBase):
                 to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
     def get_pbi_datasources_gateway(self):
-        # Create output table (Table-definition - just metadata)
         keys = [
             "id",
             "gateway_id",
@@ -378,7 +366,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -421,7 +408,6 @@ class Component(ComponentBase):
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
     def get_pbi_datasets_refreshes(self):
-        # Create output table (Table-definition - just metadata)
         keys = [
             "id",
             "start_time",
@@ -439,7 +425,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -506,8 +491,6 @@ class Component(ComponentBase):
                     pass
 
     def get_pbi_datasets_datasources(self):
-        # Create output table (Table-definition - just metadata)
-
         keys = [
             "datasource_type",
             "connection_details_server",
@@ -529,7 +512,6 @@ class Component(ComponentBase):
 
         self.write_manifest(table)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_path = table.full_path
         logging.info(out_table_path)
 
@@ -582,12 +564,8 @@ class Component(ComponentBase):
                         to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
     def get_pbi_datasets_refresh_schedule(self):
-        # Create output table (Table-definition - just metadata)
+        keys = ["data", "parent_id"]
 
-        keys = [
-            "data",
-            "parent_id"
-        ]
         table_times = self.create_out_table_definition('pbi_datasets_refresh_schedule_times.csv',
                                                        incremental=self.incremental,
                                                        columns=keys,
@@ -607,7 +585,6 @@ class Component(ComponentBase):
         self.write_manifest(table_days)
         self.write_manifest(table_enable)
 
-        # get file path of the table (data/out/tables/Features.csv)
         out_table_times_path = table_times.full_path
         out_table_days_path = table_days.full_path
         out_table_enable_path = table_enable.full_path
@@ -643,12 +620,10 @@ class Component(ComponentBase):
                 }
 
                 response = requests.get(url, headers=headers).json()
-                try:
-                    if len(response['times']) > 0:
-                        pd_times = pandas.Series(response['times'])
-                    if len(response['days']) > 0:
-                        pd_days = pandas.Series(response['days'])
 
+                try:
+                    pd_times = pandas.Series(response['times'], dtype='object')
+                    pd_days = pandas.Series(response['days'], dtype='object')
                     refresh_enabled = response.get('enabled')
 
                 except AttributeError:
@@ -694,15 +669,15 @@ class Component(ComponentBase):
 
         logging.info(f"Incremental = {self.incremental}")
 
-        self.get_pbi_groups()
-        self.get_pbi_users()
-        self.get_pbi_datasets()
-        self.get_pbi_dashboards()
-        self.get_pbi_reports()
-        self.get_pbi_gateways()
-        self.get_pbi_datasources_gateway()
-        self.get_pbi_datasets_refreshes()
-        self.get_pbi_datasets_datasources()
+        # self.get_pbi_groups()
+        # self.get_pbi_users()
+        # self.get_pbi_datasets()
+        # self.get_pbi_dashboards()
+        # self.get_pbi_reports()
+        # self.get_pbi_gateways()
+        # self.get_pbi_datasources_gateway()
+        # self.get_pbi_datasets_refreshes()
+        # self.get_pbi_datasets_datasources()
         self.get_pbi_datasets_refresh_schedule()
 
 
