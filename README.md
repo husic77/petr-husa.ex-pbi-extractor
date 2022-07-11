@@ -1,11 +1,8 @@
 PBI extractor
 =============
 
-Description
+Getting data from Power BI via API.
 
-**Table of contents:**
-
-[TOC]
 
 Functionality notes
 ===================
@@ -13,39 +10,52 @@ Functionality notes
 Prerequisites
 =============
 
-Get the API token, register application, etc.
+Inputs required to update the access token:
+
+Client ID
+
+Power BI username
+
+Power BI password
 
 Features
 ========
 
-| **Feature**             | **Note**                                      |
-|-------------------------|-----------------------------------------------|
-| Generic UI form         | Dynamic UI form                               |
-| Row Based configuration | Allows structuring the configuration in rows. |
-| oAuth                   | oAuth authentication enabled                  |
-| Incremental loading     | Allows fetching data in new increments.       |
-| Backfill mode           | Support for seamless backfill setup.          |
-| Date range filter       | Specify date range.                           |
 
-Supported endpoints
+
 ===================
 
 If you need more endpoints, please submit your request to
 [ideas.keboola.com](https://ideas.keboola.com/)
 
-Configuration
-=============
-
-Param 1
--------
-
-Param 2
--------
-
 Output
 ======
 
-List of tables, foreign keys, schema.
+data\out\tables\pbi_datasets.csv
+data\out\tables\pbi_datasets_datasources.csv
+data\out\tables\pbi_datasets_refresh_schedule_days.csv
+data\out\tables\pbi_datasets_refresh_schedule_enable.csv
+data\out\tables\pbi_datasets_refresh_schedule_times.csv
+data\out\tables\pbi_datasets_refreshes.csv
+data\out\tables\pbi_datasources_gateway.csv
+data\out\tables\pbi_gateways.csv
+data\out\tables\pbi_groups.csv
+data\out\tables\pbi_reports.csv
+data\out\tables\pbi_users.csv
+
+Used APIs:
+=========
+https://login.microsoftonline.com/common/oauth2/token - refresh token to get data from Power BI
+https://api.powerbi.com/v1.0/myorg/groups
+https://api.powerbi.com/v1.0/myorg/groups/{groupId}/users
+https://api.powerbi.com/v1.0/myorg/groups/{groupId}/datasets
+https://api.powerbi.com/v1.0/myorg/groups/{groupId}/dashboards
+https://api.powerbi.com/v1.0/myorg/groups/{groupId}/reports
+https://api.powerbi.com/v1.0/myorg/gateways
+https://api.powerbi.com/v1.0/myorg/gateways/{gatewayId}/datasources
+https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/refreshes
+https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/datasources
+https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/refreshSchedule
 
 Development
 -----------
