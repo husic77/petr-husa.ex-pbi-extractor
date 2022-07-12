@@ -8,21 +8,28 @@
     "incremental"
   ],
   "properties": {
-    "#client_id": {
+    "#password": {
       "type": "string",
-      "title": "Client ID"
+      "title": "Password",
+      "propertyOrder": 30,
+      "description": "Power BI password"
     },
     "#username": {
       "type": "string",
-      "title": "Username"
+      "title": "Username",
+      "propertyOrder": 20,
+      "description": "Power BI username"
     },
-    "#password": {
+    "#client_id": {
       "type": "string",
-      "title": "Password"
+      "title": "Client ID",
+      "propertyOrder": 10
     },
     "incremental": {
       "type": "boolean",
-      "title": "Incremental"
+      "title": "Incremental",
+      "default": false,
+      "format": "checkbox"
     }
   }
 }

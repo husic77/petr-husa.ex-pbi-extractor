@@ -89,7 +89,15 @@ class Component(ComponentBase):
         self.write_manifest(table)
 
     def get_pbi_users(self):
-        keys = ["email", "group_user_access_right", "display_name", "identifier", "principal_type", "groups_id_parent"]
+        keys = [
+            "email",
+            "group_user_access_right",
+            "display_name",
+            "identifier",
+            "principal_type",
+            "groups_id_parent"
+        ]
+
         table = self.create_out_table_definition('pbi_users.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['email', 'group_user_access_right', 'groups_id_parent'])
 
@@ -141,6 +149,7 @@ class Component(ComponentBase):
                 "create_report_embed_url",
                 "qna_embed_url",
                 "group_id_parent"]
+
         table = self.create_out_table_definition('pbi_datasets.csv', incremental=self.incremental, columns=keys,
                                                  primary_key=['name', 'id'])
 
