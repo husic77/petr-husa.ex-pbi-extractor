@@ -537,53 +537,62 @@ class Component(ComponentBase):
             group_id = group_dataset_all[key]['group_id_parent']
             dataset_id = group_dataset_all[key]['id']
 
-            if group_dataset_all[key]['is_refreshable']:
-                url = f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/datasources"
-                headers = {
-                    "Authorization": f"Bearer {self.access_token}"
-                }
+            url = f"https://api.powerbi.com/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/datasources"
+            headers = {
+                "Authorization": f"Bearer {self.access_token}"
+            }
 
-                response = requests.get(url, headers=headers).json()
-                # print(url)
-                # print(response)
-                try:
-                    pd = pandas.DataFrame.from_dict(response.get("value"))
-                except AttributeError:
-                    pass
-                else:
+            response = requests.get(url, headers=headers).json()
+            # print(url)
+            # print(response)
+            try:
+                pd = pandas.DataFrame.from_dict(response.get("value"))
+            except AttributeError:
+                pass
+            else:
 
-                    for _ in range(len(pd)):
-                        connection_details = pd.get('connectionDetails')
-                        con_type = pd.get('datasourceType')
-                        datasource_id = ['']
-                        try:
-                            datasource_id = pd.get('datasourceId')[_]
-                        except TypeError:
-                            pass
-                        gateway_id = ['']
-                        try:
-                            gateway_id = pd.get('gatewayId')[_]
-                        except TypeError:
-                            pass
+                for _ in range(len(pd)):
+                    connection_details = pd.get('connectionDetails')
+                    con_type = pd.get('datasourceType')
+                    name = ['']
+                    try:
+                        name = pd.get('name')[_]
+                    except TypeError:
+                        pass
+                    con_string = ['']
+                    try:
+                        con_string = pd.get('connectionString')[_]
+                    except TypeError:
+                        pass
+                    datasource_id = ['']
+                    try:
+                        datasource_id = pd.get('datasourceId')[_]
+                    except TypeError:
+                        pass
+                    gateway_id = ['']
+                    try:
+                        gateway_id = pd.get('gatewayId')[_]
+                    except TypeError:
+                        pass
 
-                        new_items = {
-                            "datasource_type": con_type[_],
-                            "connection_details_server": connection_details[_].get('server'),
-                            "connection_details_database": connection_details[_].get('database'),
-                            "connection_details_path": connection_details[_].get('path'),
-                            "connection_details_url": connection_details[_].get('url'),
-                            "connection_details_kind": connection_details[_].get('kind'),
-                            "connection_details_connection_string": connection_details[_].get('connectionString'),
-                            "datasource_id": datasource_id,
-                            "gateway_id": gateway_id,
-                            "name": "",
-                            "connection_string": "",
-                            "dataset_id_parent": dataset_id
-                        }
+                    new_items = {
+                        "datasource_type": con_type[_],
+                        "connection_details_server": connection_details[_].get('server'),
+                        "connection_details_database": connection_details[_].get('database'),
+                        "connection_details_path": connection_details[_].get('path'),
+                        "connection_details_url": connection_details[_].get('url'),
+                        "connection_details_kind": connection_details[_].get('kind'),
+                        "connection_details_connection_string": connection_details[_].get('connectionString'),
+                        "datasource_id": datasource_id,
+                        "gateway_id": gateway_id,
+                        "name": name,
+                        "connection_string": con_string,
+                        "dataset_id_parent": dataset_id
+                    }
 
-                        to_write = pandas.DataFrame(new_items, index=[0])
-                        # print(to_write)
-                        to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
+                    to_write = pandas.DataFrame(new_items, index=[0])
+                    # print(to_write)
+                    to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
     def get_pbi_datasets_refresh_schedule(self):
         keys = ["data", "parent_id"]
