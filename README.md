@@ -13,10 +13,8 @@ Prerequisites
 Inputs required to update the access token:
 
 Client ID
-
-Power BI username
-
-Power BI password
+<br>Power BI username
+<br>Power BI password
 
 Features
 ========
@@ -31,17 +29,17 @@ If you need more endpoints, please submit your request to
 Output
 ======
 
-data\out\tables\pbi_datasets.csv
-data\out\tables\pbi_datasets_datasources.csv
-data\out\tables\pbi_datasets_refresh_schedule_days.csv
-data\out\tables\pbi_datasets_refresh_schedule_enable.csv
-data\out\tables\pbi_datasets_refresh_schedule_times.csv
-data\out\tables\pbi_datasets_refreshes.csv
-data\out\tables\pbi_datasources_gateway.csv
-data\out\tables\pbi_gateways.csv
-data\out\tables\pbi_groups.csv
-data\out\tables\pbi_reports.csv
-data\out\tables\pbi_users.csv
+<br>data\out\tables\pbi_datasets.csv
+<br>data\out\tables\pbi_datasets_datasources.csv
+<br>data\out\tables\pbi_datasets_refresh_schedule_days.csv
+<br>data\out\tables\pbi_datasets_refresh_schedule_enable.csv
+<br>data\out\tables\pbi_datasets_refresh_schedule_times.csv
+<br>data\out\tables\pbi_datasets_refreshes.csv
+<br>data\out\tables\pbi_datasources_gateway.csv
+<br>data\out\tables\pbi_gateways.csv
+<br>data\out\tables\pbi_groups.csv
+<br>data\out\tables\pbi_reports.csv
+<br>data\out\tables\pbi_users.csv
 
 Used APIs:
 =========

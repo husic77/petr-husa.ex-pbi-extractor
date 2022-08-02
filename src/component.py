@@ -544,7 +544,8 @@ class Component(ComponentBase):
                 }
 
                 response = requests.get(url, headers=headers).json()
-
+                # print(url)
+                # print(response)
                 try:
                     pd = pandas.DataFrame.from_dict(response.get("value"))
                 except AttributeError:
@@ -553,21 +554,33 @@ class Component(ComponentBase):
 
                     for _ in range(len(pd)):
                         connection_details = pd.get('connectionDetails')
+                        con_type = pd.get('datasourceType')
+                        datasource_id = ['']
+                        try:
+                            datasource_id = pd.get('datasourceId')[_]
+                        except TypeError:
+                            pass
+                        gateway_id = ['']
+                        try:
+                            gateway_id = pd.get('gatewayId')[_]
+                        except TypeError:
+                            pass
 
                         new_items = {
-                            "datasource_type": pd.get('datasourceType'),
+                            "datasource_type": con_type[_],
                             "connection_details_server": connection_details[_].get('server'),
                             "connection_details_database": connection_details[_].get('database'),
                             "connection_details_path": connection_details[_].get('path'),
                             "connection_details_url": connection_details[_].get('url'),
                             "connection_details_kind": connection_details[_].get('kind'),
                             "connection_details_connection_string": connection_details[_].get('connectionString'),
-                            "datasource_id": pd.get('datasourceId'),
-                            "gateway_id": pd.get('gatewayId'),
+                            "datasource_id": datasource_id,
+                            "gateway_id": gateway_id,
                             "name": "",
                             "connection_string": "",
                             "dataset_id_parent": dataset_id
                         }
+
                         to_write = pandas.DataFrame(new_items, index=[0])
                         # print(to_write)
                         to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
