@@ -58,6 +58,7 @@ class Component(ComponentBase):
 
     def get_pbi_groups(self):
         key = ["id", "name"]
+        key_refresh = ["id", "isReadOnly", "isOnDedicatedCapacity", "name", "type"]
 
         table = self.create_out_table_definition('pbi_groups.csv', incremental=self.incremental,
                                                  columns=key, primary_key=['name', 'id'])
@@ -65,9 +66,19 @@ class Component(ComponentBase):
         out_table_path = table.full_path
         logging.info(out_table_path)
 
+        table_refresh = self.create_out_table_definition('pbi_groups_refresh.csv', incremental=False,
+                                                         columns=key_refresh)
+
+        out_table_refresh_path = table_refresh.full_path
+        logging.info(out_table_refresh_path)
+
         with open(out_table_path, "w"):
             pd = pandas.DataFrame(columns=key)
             pd.to_csv(out_table_path, columns=key, index=False)
+
+        with open(out_table_refresh_path, "w"):
+            pd = pandas.DataFrame(columns=key_refresh)
+            pd.to_csv(out_table_refresh_path, columns=key_refresh, index=False)
 
         url = "https://api.powerbi.com/v1.0/myorg/groups"
         headers = {
@@ -75,18 +86,29 @@ class Component(ComponentBase):
         }
 
         response = requests.get(url, headers=headers).json()
-
+        print(response)
         pd = pandas.DataFrame.from_dict(response['value'])
         new_items = {
             "id": pd.get('id'),
             "name": pd.get('name'),
         }
 
+        new_items_refresh = {
+            "id": pd.get('id'),
+            "isReadOnly": pd.get('isReadOnly'),
+            "isOnDedicatedCapacity": pd.get('isOnDedicatedCapacity'),
+            "name": pd.get('name'),
+            "type": pd.get('type')
+        }
+
         to_write = pandas.DataFrame.from_dict(new_items)
-        # print(to_write)
         to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=key)
 
+        to_write_refresh = pandas.DataFrame.from_dict(new_items_refresh)
+        to_write_refresh.to_csv(table_refresh.full_path, mode="a", header=False, index=False, columns=key_refresh)
+
         self.write_manifest(table)
+        self.write_manifest(table_refresh)
 
     def get_pbi_users(self):
         keys = [
@@ -162,6 +184,36 @@ class Component(ComponentBase):
             pd = pandas.DataFrame(columns=keys)
             pd.to_csv(out_table_path, columns=keys, index=False)
 
+        keys_refresh = ["id",
+                "name",
+                "addRowsAPIEnabled",
+                "configuredBy",
+                "isRefreshable",
+                "isEffectiveIdentityRequired",
+                "isEffectiveIdentityRolesRequired",
+                "isOnPremGatewayRequired",
+                "targetStorageMode",
+                "createReportEmbedURL",
+                "qnaEmbedURL",
+                "upstreamDatasets",
+                "schemaMayNotBeUpToDate",
+                "users",
+                "webUrl",
+                "createdDate",
+                "parent_id"
+                ]
+
+        table_refresh = self.create_out_table_definition('pbi_datasets_refresh.csv', incremental=False, columns=keys_refresh)
+
+        self.write_manifest(table_refresh)
+
+        out_table_refresh_path = table_refresh.full_path
+        logging.info(out_table_refresh_path)
+
+        with open(out_table_refresh_path, "w"):
+            pd = pandas.DataFrame(columns=keys_refresh)
+            pd.to_csv(out_table_refresh_path, columns=keys_refresh, index=False)
+
         with open("../data/out/tables/pbi_groups.csv") as f:
             file_data = pandas.read_csv(f)
             pd = pandas.DataFrame(file_data)
@@ -190,12 +242,33 @@ class Component(ComponentBase):
                         "qna_embed_url": pd.get('qnaEmbedURL'),
                         "group_id_parent": groupId
                     }
+                    new_items_refresh = {
+                        "id": pd.get('id'),
+                        "name": pd.get('name'),
+                        "addRowsAPIEnabled": pd.get('addRowsAPIEnabled'),
+                        "configuredBy": pd.get('configuredBy'),
+                        "isRefreshable": pd.get('isRefreshable'),
+                        "isEffectiveIdentityRequired": pd.get('isEffectiveIdentityRequired'),
+                        "isEffectiveIdentityRolesRequired": pd.get('isEffectiveIdentityRolesRequired'),
+                        "isOnPremGatewayRequired": pd.get('isOnPremGatewayRequired'),
+                        "targetStorageMode": pd.get('targetStorageMode'),
+                        "createReportEmbedURL": pd.get('createReportEmbedURL'),
+                        "qnaEmbedURL": pd.get('qnaEmbedURL'),
+                        "upstreamDatasets": pd.get('upstreamDatasets'),
+                        "schemaMayNotBeUpToDate": pd.get('schemaMayNotBeUpToDate'),
+                        "users": pd.get('users'),
+                        "webUrl": pd.get('webUrl'),
+                        "createdDate": pd.get('createdDate'),
+                        "parent_id": groupId
+                    }
                 except AttributeError:
                     pass
                 else:
                     to_write = pandas.DataFrame.from_dict(new_items)
-                    # print(to_write)
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
+
+                    to_write_refresh = pandas.DataFrame.from_dict(new_items_refresh)
+                    to_write_refresh.to_csv(table_refresh.full_path, mode="a", header=False, index=False, columns=keys_refresh)
 
     def get_pbi_dashboards(self):
         keys = [
@@ -214,9 +287,30 @@ class Component(ComponentBase):
         out_table_path = table.full_path
         logging.info(out_table_path)
 
+        keys_refresh = [
+            "id",
+            "displayName",
+            "isReadOnly",
+            "webUrl",
+            "embedUrl",
+            "users",
+            "subscriptions",
+            "parent_id"
+        ]
+        table_refresh = self.create_out_table_definition('pbi_dashboards_refresh.csv', incremental=False,
+                                                         columns=keys_refresh)
+
+        self.write_manifest(table_refresh)
+        out_table_refresh_path = table_refresh.full_path
+        logging.info(out_table_refresh_path)
+
         with open(out_table_path, "w"):
             pd = pandas.DataFrame(columns=keys)
             pd.to_csv(out_table_path, columns=keys, index=False)
+
+        with open(out_table_refresh_path, "w"):
+            pd = pandas.DataFrame(columns=keys_refresh)
+            pd.to_csv(out_table_refresh_path, columns=keys_refresh, index=False)
 
         with open("../data/out/tables/pbi_groups.csv") as f:
             file_data = pandas.read_csv(f)
@@ -232,7 +326,7 @@ class Component(ComponentBase):
             response = requests.get(url, headers=headers).json()
 
             pd = pandas.DataFrame.from_dict(response["value"])
-
+            print(url)
             if not pd.empty:
                 try:
                     new_items = {
@@ -243,12 +337,25 @@ class Component(ComponentBase):
                         "embed_url": pd.get('embedUrl'),
                         "group_id_parent": groupId
                     }
+                    new_items_refresh = {
+                        "id": pd.get('id'),
+                        "displayName": pd.get('displayName'),
+                        "isReadOnly": pd.get('isReadOnly'),
+                        "webUrl": pd.get('webUrl'),
+                        "embedUrl": pd.get('embedUrl'),
+                        "users": pd.get("users"),
+                        "subscriptions": pd.get("subscriptions"),
+                        "parent_id": groupId
+                    }
                 except AttributeError:
                     pass
                 else:
                     to_write = pandas.DataFrame.from_dict(new_items)
-                    # print(to_write)
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
+
+                    to_write_refresh = pandas.DataFrame.from_dict(new_items_refresh)
+                    to_write_refresh.to_csv(table_refresh.full_path, mode="a", header=False, index=False,
+                                            columns=keys_refresh)
 
     def get_pbi_reports(self):
         keys = [
@@ -273,6 +380,31 @@ class Component(ComponentBase):
         with open(out_table_path, "w"):
             pd = pandas.DataFrame(columns=keys)
             pd.to_csv(out_table_path, columns=keys, index=False)
+
+        keys_actual = [
+            "id",
+            "reportType",
+            "name",
+            "webUrl",
+            "embedUrl",
+            "isFromPbix",
+            "isOwnedByMe",
+            "datasetId",
+            "datasetWorkspaceId",
+            "users",
+            "subscriptions",
+            "parent_id"
+        ]
+        table_actual = self.create_out_table_definition('pbi_reports_actual.csv', incremental=self.incremental, columns=keys_actual)
+
+        self.write_manifest(table_actual)
+
+        out_table_actual_path = table_actual.full_path
+        logging.info(out_table_actual_path)
+
+        with open(out_table_actual_path, "w"):
+            pd = pandas.DataFrame(columns=keys_actual)
+            pd.to_csv(out_table_actual_path, columns=keys_actual, index=False)
 
         with open("../data/out/tables/pbi_groups.csv") as f:
             file_data = pandas.read_csv(f)
@@ -302,12 +434,28 @@ class Component(ComponentBase):
                         "dataset_id": pd.get('datasetId'),
                         "group_id_parent": groupId
                     }
+                    new_items_actual = {
+                        "id": pd.get('id'),
+                        "reportType": pd.get('reportType'),
+                        "name": pd.get('name'),
+                        "webUrl": pd.get('webUrl'),
+                        "embedUrl": pd.get('embedUrl'),
+                        "isFromPbix": pd.get('isFromPbix'),
+                        "isOwnedByMe": pd.get('isOwnedByMe'),
+                        "datasetId": pd.get('datasetId'),
+                        "datasetWorkspaceId": pd.get('datasetWorkspaceId'),
+                        "users": pd.get('users'),
+                        "subscriptions": pd.get('subscriptions'),
+                        "parent_id": groupId
+                    }
                 except AttributeError:
                     pass
                 else:
                     to_write = pandas.DataFrame.from_dict(new_items)
-                    # print(to_write)
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
+
+                    to_write_actual = pandas.DataFrame.from_dict(new_items_actual)
+                    to_write_actual.to_csv(table_actual.full_path, mode="a", header=False, index=False, columns=keys_actual)
 
     def get_pbi_gateways(self):
         keys = [
@@ -320,7 +468,7 @@ class Component(ComponentBase):
             "gateway_annotation"
         ]
         table = self.create_out_table_definition('pbi_gateways.csv', incremental=self.incremental, columns=keys,
-                                                 primary_key=['id'])
+                                                 primary_key=['id', 'name', 'type', 'public_key_modulus'])
 
         self.write_manifest(table)
 
