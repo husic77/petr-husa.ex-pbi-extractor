@@ -499,9 +499,9 @@ class Component(ComponentBase):
                     "id": pd.get('id'),
                     "gateway_id": pd.get('gatewayId'),
                     "name": pd.get('name'),
-                    "type": pd.get('type)'),
-                    "public_key_exponent": pk_details.get('exponent'),
-                    "public_key_modulus": pk_details.get('modulus'),
+                    "type": pd.get('type'),
+                    "public_key_exponent": pk_details[0]['exponent'],
+                    "public_key_modulus": pk_details[0]['modulus'],
                     "gateway_annotation": str(gw[0])
                 }
             except AttributeError:
@@ -852,16 +852,16 @@ class Component(ComponentBase):
 
         logging.info(f"Incremental = {self.incremental}")
 
-        self.get_pbi_groups()
-        self.get_pbi_users()
-        self.get_pbi_datasets()
-        self.get_pbi_dashboards()
-        self.get_pbi_reports()
+        # self.get_pbi_groups()
+        # self.get_pbi_users()
+        # self.get_pbi_datasets()
+        # self.get_pbi_dashboards()
+        # self.get_pbi_reports()
         self.get_pbi_gateways()
-        self.get_pbi_datasources_gateway()
-        self.get_pbi_datasets_refreshes()
-        self.get_pbi_datasets_datasources()
-        self.get_pbi_datasets_refresh_schedule()
+        # self.get_pbi_datasources_gateway()
+        # self.get_pbi_datasets_refreshes()
+        # self.get_pbi_datasets_datasources()
+        # self.get_pbi_datasets_refresh_schedule()
 
 
 """
