@@ -29,7 +29,10 @@ If you need more endpoints, please submit your request to
 Output
 ======
 
+<br>data\out\tables\pbi_dashboards.csv
+<br>data\out\tables\pbi_dashboards_refresh.csv
 <br>data\out\tables\pbi_datasets.csv
+<br>data\out\tables\pbi_datasets_refresh.csv
 <br>data\out\tables\pbi_datasets_datasources.csv
 <br>data\out\tables\pbi_datasets_refresh_schedule_days.csv
 <br>data\out\tables\pbi_datasets_refresh_schedule_enable.csv
@@ -38,7 +41,9 @@ Output
 <br>data\out\tables\pbi_datasources_gateway.csv
 <br>data\out\tables\pbi_gateways.csv
 <br>data\out\tables\pbi_groups.csv
+<br>data\out\tables\pbi_groups_refresh.csv
 <br>data\out\tables\pbi_reports.csv
+<br>data\out\tables\pbi_reports_actual.csv
 <br>data\out\tables\pbi_users.csv
 
 Used APIs:

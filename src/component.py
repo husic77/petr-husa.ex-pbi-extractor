@@ -86,7 +86,7 @@ class Component(ComponentBase):
         }
 
         response = requests.get(url, headers=headers).json()
-        print(response)
+
         pd = pandas.DataFrame.from_dict(response['value'])
         new_items = {
             "id": pd.get('id'),
@@ -185,25 +185,26 @@ class Component(ComponentBase):
             pd.to_csv(out_table_path, columns=keys, index=False)
 
         keys_refresh = ["id",
-                "name",
-                "addRowsAPIEnabled",
-                "configuredBy",
-                "isRefreshable",
-                "isEffectiveIdentityRequired",
-                "isEffectiveIdentityRolesRequired",
-                "isOnPremGatewayRequired",
-                "targetStorageMode",
-                "createReportEmbedURL",
-                "qnaEmbedURL",
-                "upstreamDatasets",
-                "schemaMayNotBeUpToDate",
-                "users",
-                "webUrl",
-                "createdDate",
-                "parent_id"
-                ]
+                        "name",
+                        "addRowsAPIEnabled",
+                        "configuredBy",
+                        "isRefreshable",
+                        "isEffectiveIdentityRequired",
+                        "isEffectiveIdentityRolesRequired",
+                        "isOnPremGatewayRequired",
+                        "targetStorageMode",
+                        "createReportEmbedURL",
+                        "qnaEmbedURL",
+                        "upstreamDatasets",
+                        "schemaMayNotBeUpToDate",
+                        "users",
+                        "webUrl",
+                        "createdDate",
+                        "parent_id"
+                        ]
 
-        table_refresh = self.create_out_table_definition('pbi_datasets_refresh.csv', incremental=False, columns=keys_refresh)
+        table_refresh = self.create_out_table_definition('pbi_datasets_refresh.csv', incremental=False,
+                                                         columns=keys_refresh)
 
         self.write_manifest(table_refresh)
 
@@ -268,7 +269,8 @@ class Component(ComponentBase):
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
                     to_write_refresh = pandas.DataFrame.from_dict(new_items_refresh)
-                    to_write_refresh.to_csv(table_refresh.full_path, mode="a", header=False, index=False, columns=keys_refresh)
+                    to_write_refresh.to_csv(table_refresh.full_path, mode="a", header=False, index=False,
+                                            columns=keys_refresh)
 
     def get_pbi_dashboards(self):
         keys = [
@@ -326,7 +328,7 @@ class Component(ComponentBase):
             response = requests.get(url, headers=headers).json()
 
             pd = pandas.DataFrame.from_dict(response["value"])
-            print(url)
+
             if not pd.empty:
                 try:
                     new_items = {
@@ -395,7 +397,8 @@ class Component(ComponentBase):
             "subscriptions",
             "parent_id"
         ]
-        table_actual = self.create_out_table_definition('pbi_reports_actual.csv', incremental=self.incremental, columns=keys_actual)
+        table_actual = self.create_out_table_definition('pbi_reports_actual.csv', incremental=self.incremental,
+                                                        columns=keys_actual)
 
         self.write_manifest(table_actual)
 
@@ -455,7 +458,8 @@ class Component(ComponentBase):
                     to_write.to_csv(table.full_path, mode="a", header=False, index=False, columns=keys)
 
                     to_write_actual = pandas.DataFrame.from_dict(new_items_actual)
-                    to_write_actual.to_csv(table_actual.full_path, mode="a", header=False, index=False, columns=keys_actual)
+                    to_write_actual.to_csv(table_actual.full_path, mode="a", header=False, index=False,
+                                           columns=keys_actual)
 
     def get_pbi_gateways(self):
         keys = [
@@ -746,17 +750,17 @@ class Component(ComponentBase):
         keys = ["data", "parent_id"]
 
         table_times = self.create_out_table_definition('pbi_datasets_refresh_schedule_times.csv',
-                                                       incremental=self.incremental,
+                                                       incremental=False,
                                                        columns=keys,
                                                        primary_key=[])
 
         table_days = self.create_out_table_definition('pbi_datasets_refresh_schedule_days.csv',
-                                                      incremental=self.incremental,
+                                                      incremental=False,
                                                       columns=keys,
                                                       primary_key=[])
 
         table_enable = self.create_out_table_definition('pbi_datasets_refresh_schedule_enable.csv',
-                                                        incremental=self.incremental,
+                                                        incremental=False,
                                                         columns=keys,
                                                         primary_key=[])
 
